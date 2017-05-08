@@ -15,19 +15,24 @@ namespace logging.Controllers
 {
     public class AuditsController : ApiController
     {
-        private AuditModel db = new AuditModel();
+        private readonly AuditModel _dbContextModel;
+
+        public AuditsController(AuditModel model)
+        {
+            _dbContextModel = model;
+        }
 
         // GET: api/Audits
-        public IQueryable<Audit> GetAudits()
+        public IQueryable<IAudit> GetAudits()
         {
-            return db.Audits;
+            return _dbContextModel.Audits;
         }
 
         // GET: api/Audits/5
-        [ResponseType(typeof(Audit))]
+        [ResponseType(typeof(IAudit))]
         public async Task<IHttpActionResult> GetAudit(Guid id)
         {
-            Audit audit = await db.Audits.FindAsync(id);
+            IAudit audit = await _dbContextModel.Audits.FindAsync(id);
             if (audit == null)
             {
                 return NotFound();
@@ -38,7 +43,7 @@ namespace logging.Controllers
 
         // PUT: api/Audits/5
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> PutAudit(Guid id, Audit audit)
+        public async Task<IHttpActionResult> PutAudit(Guid id, IAudit audit)
         {
             if (!ModelState.IsValid)
             {
@@ -50,11 +55,11 @@ namespace logging.Controllers
                 return BadRequest();
             }
 
-            db.Entry(audit).State = EntityState.Modified;
+            _dbContextModel.Entry(audit).State = EntityState.Modified;
 
             try
             {
-                await db.SaveChangesAsync();
+                await _dbContextModel.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -80,11 +85,11 @@ namespace logging.Controllers
                 return BadRequest(ModelState);
             }
 
-            db.Audits.Add(audit);
+            _dbContextModel.Audits.Add(audit);
 
             try
             {
-                await db.SaveChangesAsync();
+                await _dbContextModel.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
@@ -102,17 +107,17 @@ namespace logging.Controllers
         }
 
         // DELETE: api/Audits/5
-        [ResponseType(typeof(Audit))]
+        [ResponseType(typeof(IAudit))]
         public async Task<IHttpActionResult> DeleteAudit(Guid id)
         {
-            Audit audit = await db.Audits.FindAsync(id);
+            IAudit audit = await _dbContextModel.Audits.FindAsync(id);
             if (audit == null)
             {
                 return NotFound();
             }
 
-            db.Audits.Remove(audit);
-            await db.SaveChangesAsync();
+            _dbContextModel.Audits.Remove(audit);
+            await _dbContextModel.SaveChangesAsync();
 
             return Ok(audit);
         }
@@ -121,14 +126,14 @@ namespace logging.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                _dbContextModel.Dispose();
             }
             base.Dispose(disposing);
         }
 
         private bool AuditExists(Guid id)
         {
-            return db.Audits.Count(e => e.LogId == id) > 0;
+            return _dbContextModel.Audits.Count(e => e.LogId == id) > 0;
         }
     }
 }

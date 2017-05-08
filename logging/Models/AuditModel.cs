@@ -12,7 +12,7 @@ namespace logging.Models
         {
         }
 
-        public virtual DbSet<Audit> Audits { get; set; }
+        public virtual DbSet<IAudit> Audits { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
